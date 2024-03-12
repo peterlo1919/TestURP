@@ -2,32 +2,47 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterController : MonoBehaviour
 {
 
     private CharacterController() { }
 
-    #region Move
-    [SerializeField] private FloatingJoystick joystick;
+    #region PlayerState
+    [HideInInspector] [SerializeField] private FloatingJoystick joystick;
     private Rigidbody rb;
     private Vector3 moveVector;
+    [HeaderAttribute("Player Setting")]
     public float moveSpeed;
     public float rotateSpeed;
+    [SpaceAttribute]
+    public float maxHP;
+    public float currentHP;
     private AnimatorControlle animatorControlle;
+    #endregion
+
+    #region Hurt_UI
+    [HeaderAttribute("UI Setting")]
+    [SerializeField] private Slider hp_slider;
+    [SerializeField] private Text hp_Text;
+    [SerializeField] private Image hp_Fill;
+    [SerializeField] private Color less_50percent;
+    [SerializeField] private Color less_30percent;
+    [SerializeField] private Animator state_UI_anim;
     #endregion
 
     private CombatSystem combatSystem;
 
     private Vector3 startMouseDown;
     private Vector3 lastMouseDown;
-    [SerializeField] private float pressTimer;
+    private float pressTimer;
     private bool isCounter;             //开始计数
     private bool isPress;
     private bool isDrag;                //开始拖动
     private bool isLasting;             //开始持久点击
 
-
+    [HeaderAttribute("Press Setting")]
     public float pressTime;             //单击
     public float pressLastingTime;      //持久点击
     public float dragDistance;          //拖动大于多少才开始生效
@@ -46,6 +61,10 @@ public class CharacterController : MonoBehaviour
     #region 测试方法
     void Awake()
     {
+        hp_slider.maxValue = maxHP;
+        currentHP = maxHP;
+        hp_slider.value = currentHP;
+
         rb = GetComponent<Rigidbody>();
         animatorControlle = GetComponent<AnimatorControlle>();
         combatSystem = GetComponent<CombatSystem>();
@@ -120,11 +139,26 @@ public class CharacterController : MonoBehaviour
             rb.MovePosition(rb.position + moveVector);
         }
     }
+
+    void HP_UI()
+    {
+        hp_Text.text = hp_slider.value.ToString();
+        hp_slider.value = currentHP;
+
+        if(currentHP <= maxHP * 0.3f)
+        {
+            hp_Fill.color = less_30percent;
+        }
+        else if(currentHP <= maxHP * 0.5f)
+        {
+            hp_Fill.color = less_50percent;
+        }
+    }
     #endregion
 
-    // Update is called once per frame
     void Update()
     {
+        HP_UI();
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -200,6 +234,13 @@ public class CharacterController : MonoBehaviour
 
     }
 
-
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "Enemy_HitBox")
+        {
+            state_UI_anim.SetBool("GetHurt", true);
+            currentHP = currentHP - 100;
+        }
+    }
 
 }
