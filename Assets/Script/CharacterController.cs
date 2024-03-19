@@ -233,13 +233,11 @@ public class CharacterController : MonoBehaviour
 
 
     }
-
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Enemy_HitBox")
+        if (other.tag == "Enemy_HitBox")
         {
             state_UI_anim.SetBool("GetHurt", true);
-            currentHP = currentHP - 100;
         }
     }
 
