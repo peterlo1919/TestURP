@@ -29,6 +29,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] AttackRange attackRange;
     Transform targetDestination;
     [SerializeField] CharacterController targetCharacter;
+    [SerializeField] HealthBarController healthBarController;
     [SerializeField] GameObject targetGameObject;
     public EnemyStats stats;
     public EnemyData enemyData;
@@ -44,7 +45,9 @@ public class EnemyController : MonoBehaviour
     {
         /*float dist = Vector3.Distance(transform.position, player.position);
         if(dist)*/
-        transform.LookAt(player);
+        Vector3  point = player.position;
+        point.y = 0.0f;
+        transform.LookAt(point);
         transform.Translate(0, 0, stats.speed);
     }
 
@@ -68,7 +71,8 @@ public class EnemyController : MonoBehaviour
     public void Attack()
     {
             targetCharacter = targetGameObject.GetComponent<CharacterController>();
-            Debug.Log(targetCharacter.currentHP);
             targetCharacter.currentHP -= stats.damage;
+            targetCharacter.currentHP = Mathf.Clamp(targetCharacter.currentHP, 0f, targetCharacter.maxHP);
+            healthBarController.UpdateHealthBar();
     }
 }

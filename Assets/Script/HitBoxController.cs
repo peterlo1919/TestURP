@@ -5,17 +5,6 @@ using UnityEngine;
 public class HitBoxController : MonoBehaviour
 {
     [SerializeField] private GameObject[] haveKnockBack;
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "Enemy")

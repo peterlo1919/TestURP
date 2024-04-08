@@ -15,7 +15,9 @@ public class CharacterController : MonoBehaviour
     private Vector3 moveVector;
     [HeaderAttribute("Player Setting")]
     public float moveSpeed;
+    private float _moveSpeed;
     public float rotateSpeed;
+    private float _rotateSpeed;
     [SpaceAttribute]
     public float maxHP;
     public float currentHP;
@@ -23,12 +25,7 @@ public class CharacterController : MonoBehaviour
     #endregion
 
     #region Hurt_UI
-    [HeaderAttribute("UI Setting")]
-    [SerializeField] private Slider hp_slider;
-    [SerializeField] private Text hp_Text;
-    [SerializeField] private Image hp_Fill;
-    [SerializeField] private Color less_50percent;
-    [SerializeField] private Color less_30percent;
+    [SerializeField] private HealthBarController healthBarController;
     [SerializeField] private Animator state_UI_anim;
     #endregion
 
@@ -61,13 +58,16 @@ public class CharacterController : MonoBehaviour
     #region 测试方法
     void Awake()
     {
-        hp_slider.maxValue = maxHP;
-        currentHP = maxHP;
-        hp_slider.value = currentHP;
-
         rb = GetComponent<Rigidbody>();
         animatorControlle = GetComponent<AnimatorControlle>();
         combatSystem = GetComponent<CombatSystem>();
+
+        _moveSpeed = moveSpeed;
+        _rotateSpeed = rotateSpeed;
+
+        currentHP = maxHP;
+        healthBarController.hp_slider.maxValue = maxHP;
+        healthBarController.hp_slider.value = currentHP;
 
         StartPressEvent += StartPress;
         EndPressEvent += EndPress;
@@ -139,27 +139,10 @@ public class CharacterController : MonoBehaviour
             rb.MovePosition(rb.position + moveVector);
         }
     }
-
-    void HP_UI()
-    {
-        hp_Text.text = hp_slider.value.ToString();
-        hp_slider.value = currentHP;
-
-        if(currentHP <= maxHP * 0.3f)
-        {
-            hp_Fill.color = less_30percent;
-        }
-        else if(currentHP <= maxHP * 0.5f)
-        {
-            hp_Fill.color = less_50percent;
-        }
-    }
     #endregion
 
     void Update()
     {
-        HP_UI();
-
         if (Input.GetMouseButtonDown(0))
         {
             isCounter = true;
@@ -238,7 +221,17 @@ public class CharacterController : MonoBehaviour
         if (other.tag == "Enemy_HitBox")
         {
             state_UI_anim.SetBool("GetHurt", true);
+            animatorControlle.PlayHurt();
+            moveSpeed = 0f;
         }
+    }
+
+    public void ResetSpeedAndCombo()
+    {
+        moveSpeed = _moveSpeed;
+        rotateSpeed = _rotateSpeed;
+        combatSystem.attack = false;
+        combatSystem.count_combo = 0;
     }
 
 }
