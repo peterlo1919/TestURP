@@ -15,14 +15,14 @@ public class SlimeAnimator : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "HitBox")
+        if (other.tag == "HitBox" || other.tag == "Missile")
         {
             anim.SetBool("GetHurt", true);
             hurtVFX_gameobject.transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
             hurtVFX.Play();
             hurtSE.Play();
         }
-    }   
+    }
 
     public void TurnToIdle()
     {

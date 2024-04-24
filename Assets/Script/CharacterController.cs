@@ -21,7 +21,10 @@ public class CharacterController : MonoBehaviour
     [SpaceAttribute]
     public float maxHP;
     public float currentHP;
+    public float maxMP;
+    public float currentMP;
     private AnimatorControlle animatorControlle;
+    [SerializeField] private MPBarController _MPBarController;
     #endregion
 
     #region Hurt_UI
@@ -44,6 +47,10 @@ public class CharacterController : MonoBehaviour
     public float pressLastingTime;      //持久点击
     public float dragDistance;          //拖动大于多少才开始生效
 
+    private Vector2 startTouchPosition;
+    private Vector2 endTouchPosition;
+
+    public GameObject skill_1;
     #region 事件
     public static Action<Vector3> StartPressEvent;
     public static Action<Vector3> EndPressEvent;
@@ -69,6 +76,9 @@ public class CharacterController : MonoBehaviour
         healthBarController.hp_slider.maxValue = maxHP;
         healthBarController.hp_slider.value = currentHP;
 
+        _MPBarController.mp_slider.maxValue = maxMP;
+        _MPBarController.mp_slider.value = currentMP;
+
         StartPressEvent += StartPress;
         EndPressEvent += EndPress;
 
@@ -83,8 +93,8 @@ public class CharacterController : MonoBehaviour
     {
         Debug.Log("开始单击事件");
         isPress = true;
-        combatSystem.OnCombo(isPress);
         combatSystem.OnAttack(isPress);
+        combatSystem.OnCombo(isPress);
     }
 
     private void EndPress(Vector3 v)
@@ -143,6 +153,7 @@ public class CharacterController : MonoBehaviour
 
     void Update()
     {
+        Swipe();
         if (Input.GetMouseButtonDown(0))
         {
             isCounter = true;
@@ -160,17 +171,17 @@ public class CharacterController : MonoBehaviour
                 if (EndDragEvent != null) EndDragEvent(Input.mousePosition);
                 isDrag = false;
             }
-            else
-            {
-                //单击
-                if (EndPressEvent != null) EndPressEvent(Input.mousePosition);
-            }
             /*else if (isLasting)
             {
                 //持久点击
                 if (EndLastingEvent != null) EndLastingEvent(Input.mousePosition);
                 isLasting = false;
-            */
+            }*/
+            else
+            {
+                //单击
+                if (EndPressEvent != null) EndPressEvent(Input.mousePosition);
+            }
 
         }
 
@@ -201,20 +212,6 @@ public class CharacterController : MonoBehaviour
             //让人物跟谁手指的方向移动
             return;
         }
-
-        /*if (isCounter && pressTimer > pressLastingTime && isDrag == false)
-        {
-            Debug.Log("持久点击");
-            isLasting = true;
-
-            if (StartLastingEvent != null) StartLastingEvent(Input.mousePosition);
-
-            //出现技能图标,然后滑动到技能哪里就可以触发技能
-
-            return;
-        }*/
-
-
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -232,6 +229,51 @@ public class CharacterController : MonoBehaviour
         rotateSpeed = _rotateSpeed;
         combatSystem.attack = false;
         combatSystem.count_combo = 0;
+    }
+
+    public void SpwanSkill_1()
+    {
+        GameObject skill_obj = Instantiate(skill_1, new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y + 1, this.gameObject.transform.position.z), this.transform.rotation, this.transform);
+        skill_obj.GetComponent<Rigidbody>().AddForce(skill_obj.transform.forward * 1000f);
+    }
+
+    public void Swipe()
+    {
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            startTouchPosition = Input.GetTouch(0).position;
+        }
+
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+        {
+            endTouchPosition = Input.GetTouch(0).position;
+
+            float swipeDistanceX = endTouchPosition.x - startTouchPosition.x;
+            float swipeDistanceY = endTouchPosition.y - startTouchPosition.y;
+
+            if (Mathf.Abs(swipeDistanceX) > Mathf.Abs(swipeDistanceY))
+            {
+                if (swipeDistanceX > 0)
+                {
+                    Debug.Log("Swipe Right");
+                }
+                else
+                {
+                    Debug.Log("Swipe Left");
+                }
+            }
+            else
+            {
+                if (swipeDistanceY > 0)
+                {
+                    Debug.Log("Swipe Up");
+                }
+                else
+                {
+                    Debug.Log("Swipe Down");
+                }
+            }
+        }
     }
 
 }

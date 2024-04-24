@@ -58,17 +58,14 @@ public class CombatSystem : MonoBehaviour
             switch (count_combo)
             {
                 case 0:
-                   // anim.SetBool("Hit1", false);
                     anim.SetBool("Hit2", true);
                     count_combo = 1;
                     break;
                 case 1:
-                    //anim.SetBool("Hit2", false);
                     anim.SetBool("Hit3", true);
                     count_combo = 2;
                     break;
                 case 2:
-                    //anim.SetBool("Hit3", false);
                     anim.SetBool("Hit4", true);
                     count_combo = 3;
                     break;

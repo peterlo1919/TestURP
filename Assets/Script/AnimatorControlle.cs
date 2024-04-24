@@ -32,6 +32,19 @@ public class AnimatorControlle : MonoBehaviour
         hurtVFX.Play();
     }
 
+    public void PlaySkill1()
+    {
+        animator.Play("blast");
+    }
+    public void PlaySkill2()
+    {
+        animator.Play("Kick");
+    }
+    public void PlaySkill3()
+    {
+        animator.Play("Skill");
+    }
+
     public void Reset()
     {
         animator.SetBool("Hit1", false);

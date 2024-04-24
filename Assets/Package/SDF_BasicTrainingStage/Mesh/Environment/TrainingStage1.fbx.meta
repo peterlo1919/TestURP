@@ -3,7 +3,12 @@ guid: b918b3dfcaa30b14ab81552d34269671
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GridGlow
+    second: {fileID: 2100000, guid: 87dd42bd0252c814fa8d3e7fbb7fa392, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
