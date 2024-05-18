@@ -14,7 +14,7 @@ public class ETFXSceneManager : MonoBehaviour
 	public bool GUIHide3 = false;	
 	public bool GUIHide4 = false;
 	
-    public void LoadScene2DDemo()  {
+    /*public void LoadScene2DDemo()  {
 		SceneManager.LoadScene ("etfx_2ddemo");
 	}
 	public void LoadSceneCards()  {
@@ -103,7 +103,7 @@ public class ETFXSceneManager : MonoBehaviour
 	}
 	public void LoadSceneWater()  {
 		SceneManager.LoadScene ("etfx_water");
-	}
+	}*/
 	
 	void Update ()
 	 {

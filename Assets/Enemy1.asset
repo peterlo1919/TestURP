@@ -19,6 +19,7 @@ MonoBehaviour:
     hp: 100
     damage: 100
     speed: 0.005
-    explosion_effect: {fileID: 0}
+    explosion_effect: {fileID: 1765137710588814, guid: 6bea1543e5b3fca40a6c415bb1ecabe3,
+      type: 3}
     IsBoss: 0
   IsBoss: 0

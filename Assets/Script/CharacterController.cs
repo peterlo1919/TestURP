@@ -11,9 +11,9 @@ public class CharacterController : MonoBehaviour
 
     #region PlayerState
     [HideInInspector] [SerializeField] private FloatingJoystick joystick;
-    private Rigidbody rb;
+    public Rigidbody rb;
     private Vector3 moveVector;
-    [HeaderAttribute("Player Setting")]
+    [HeaderAttribute("--------Player Setting--------")]
     public float moveSpeed;
     private float _moveSpeed;
     public float rotateSpeed;
@@ -24,7 +24,12 @@ public class CharacterController : MonoBehaviour
     public float maxMP;
     public float currentMP;
     private AnimatorControlle animatorControlle;
+    [HeaderAttribute("--------UI Setting--------")]
+    public Button skill1;
+    public Button skill2;
+    public Button skill3;
     [SerializeField] private MPBarController _MPBarController;
+    [SerializeField] private VFXManager _VFXManager;
     #endregion
 
     #region Hurt_UI
@@ -42,13 +47,17 @@ public class CharacterController : MonoBehaviour
     private bool isDrag;                //开始拖动
     private bool isLasting;             //开始持久点击
 
-    [HeaderAttribute("Press Setting")]
+    [HeaderAttribute("--------Press Setting--------")]
     public float pressTime;             //单击
     public float pressLastingTime;      //持久点击
     public float dragDistance;          //拖动大于多少才开始生效
 
     private Vector2 startTouchPosition;
     private Vector2 endTouchPosition;
+    private Vector2 currentPosition;
+    private bool stopTouch = false;
+    private bool isRoll = false;
+    private bool isRight = false;
 
     public GameObject skill_1;
     #region 事件
@@ -104,14 +113,14 @@ public class CharacterController : MonoBehaviour
 
     private void StartDrag(Vector3 v)
     {
-        Debug.Log("开始拖动事件");
-        Move();
+        //Debug.Log("开始拖动事件");
+        //Move();
     }
 
     private void EndDrag(Vector3 v)
     {
-        Debug.Log("结束拖动事件");
-        animatorControlle.PlayIdle();
+        //Debug.Log("结束拖动事件");
+        //animatorControlle.PlayIdle();
     }
 
     private void StartLasting(Vector3 v)
@@ -153,7 +162,39 @@ public class CharacterController : MonoBehaviour
 
     void Update()
     {
-        Swipe();
+        MP_Check();
+
+        if (isRoll && isRight)
+        {
+            rb.transform.position += Vector3.right * 0.02f;
+        }
+        else if (isRoll && !isRight)
+        {
+            rb.transform.position += Vector3.left * 0.02f;
+        }
+
+        if (pressTimer > 0.1f)
+        {
+            Move();
+        }
+        else if (pressTimer < 0.05f)
+        {
+            if (SwipeManager.swipeRight)
+            {
+                isRoll = true;
+                isRight = true;
+                transform.rotation = Quaternion.Euler(0, 90, 0);
+                animatorControlle.PlayRoll();
+            }
+            if (SwipeManager.swipeLeft)
+            {
+                isRoll = true;
+                isRight = false;
+                transform.rotation = Quaternion.Euler(0, -90, 0);
+                animatorControlle.PlayRoll();
+            }
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             isCounter = true;
@@ -167,50 +208,28 @@ public class CharacterController : MonoBehaviour
 
             if (isDrag)
             {
-                //拖动
                 if (EndDragEvent != null) EndDragEvent(Input.mousePosition);
                 isDrag = false;
             }
-            /*else if (isLasting)
-            {
-                //持久点击
-                if (EndLastingEvent != null) EndLastingEvent(Input.mousePosition);
-                isLasting = false;
-            }*/
             else
             {
-                //单击
                 if (EndPressEvent != null) EndPressEvent(Input.mousePosition);
             }
-
         }
 
         if (isCounter)
         {
-            //开始计数
             pressTimer += Time.deltaTime;
         }
         else
         {
             if (pressTimer > 0 && pressTimer < pressTime)
             {
-                Debug.Log("单击");
                 if (StartPressEvent != null) StartPressEvent(Input.mousePosition);
 
             }
 
             pressTimer = 0f;
-        }
-
-        if (isCounter && Mathf.Abs(Vector3.Distance(startMouseDown, Input.mousePosition)) > dragDistance && isLasting == false)
-        {
-            Debug.Log("正在拖动");
-            isDrag = true;
-
-            if (StartDragEvent != null) StartDragEvent(Input.mousePosition);
-
-            //让人物跟谁手指的方向移动
-            return;
         }
     }
     private void OnTriggerEnter(Collider other)
@@ -236,44 +255,46 @@ public class CharacterController : MonoBehaviour
         GameObject skill_obj = Instantiate(skill_1, new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y + 1, this.gameObject.transform.position.z), this.transform.rotation, this.transform);
         skill_obj.GetComponent<Rigidbody>().AddForce(skill_obj.transform.forward * 1000f);
     }
-
-    public void Swipe()
+    
+    public void SwipeReset()
     {
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-        {
-            startTouchPosition = Input.GetTouch(0).position;
-        }
-
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
-        {
-            endTouchPosition = Input.GetTouch(0).position;
-
-            float swipeDistanceX = endTouchPosition.x - startTouchPosition.x;
-            float swipeDistanceY = endTouchPosition.y - startTouchPosition.y;
-
-            if (Mathf.Abs(swipeDistanceX) > Mathf.Abs(swipeDistanceY))
-            {
-                if (swipeDistanceX > 0)
-                {
-                    Debug.Log("Swipe Right");
-                }
-                else
-                {
-                    Debug.Log("Swipe Left");
-                }
-            }
-            else
-            {
-                if (swipeDistanceY > 0)
-                {
-                    Debug.Log("Swipe Up");
-                }
-                else
-                {
-                    Debug.Log("Swipe Down");
-                }
-            }
-        }
+        isRoll = false;
+        isRight = false;
     }
 
+    void MP_Check()
+    {
+        if (currentMP >= 10)
+        {
+            skill1.interactable = true;
+            _VFXManager.skill1_VFX.Play();
+        }
+        else
+        {
+            skill1.interactable = false;
+            _VFXManager.skill1_VFX.Stop();
+        }
+
+        if (currentMP >= 30)
+        {
+            skill2.interactable = true;
+            _VFXManager.skill2_VFX.Play();
+        }
+        else
+        {
+            skill2.interactable = false;
+            _VFXManager.skill2_VFX.Stop();
+        }
+
+        if (currentMP >= 100)
+        {
+            skill3.interactable = true;
+            _VFXManager.skill3_VFX.Play();
+        }
+        else
+        {
+            skill3.interactable = false;
+            _VFXManager.skill3_VFX.Stop();
+        }
+    }
 }

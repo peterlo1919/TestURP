@@ -5,11 +5,15 @@ using UnityEngine;
 public class SlimeAnimator : MonoBehaviour
 {
     private Animator anim;
-    [SerializeField] private GameObject hurtVFX_gameobject;
-    [SerializeField] private ParticleSystem hurtVFX;
-    [SerializeField] private AudioSource hurtSE;
+    private EnemyController enemyController;
+    [SerializeField] public int damage = 10;
+    [SerializeField] private SoundManager soundManager;
+    [SerializeField] private VFXManager vFXManager;
+    
+
     private void Awake()
     {
+        enemyController = GetComponent<EnemyController>();
         anim = GetComponent<Animator>();
     }
 
@@ -18,9 +22,10 @@ public class SlimeAnimator : MonoBehaviour
         if (other.tag == "HitBox" || other.tag == "Missile")
         {
             anim.SetBool("GetHurt", true);
-            hurtVFX_gameobject.transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
-            hurtVFX.Play();
-            hurtSE.Play();
+            vFXManager.enemyHurtVFX.gameObject.transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+            vFXManager.enemyHurtVFX.Play();
+            soundManager.PlayHurtSE();
+            enemyController.TakeDamage(damage);
         }
     }
 

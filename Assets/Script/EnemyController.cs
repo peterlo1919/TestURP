@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class EnemyStats
@@ -23,8 +24,11 @@ public class EnemyStats
 }
 public class EnemyController : MonoBehaviour
 {
+    private float maxHP;
+    private float currentHP;
+    private float og_speed;
+    [SerializeField] private Slider healthBar;
     [SerializeField] private Transform player;
-    [SerializeField] private float og_speed;
     [SerializeField] private Animator anim;
     [SerializeField] AttackRange attackRange;
     Transform targetDestination;
@@ -36,6 +40,9 @@ public class EnemyController : MonoBehaviour
     private void Awake()
     {
         SetStats(enemyData.stats);
+        maxHP = stats.hp;
+        currentHP = maxHP;
+        healthBar.maxValue = maxHP;
         og_speed = stats.speed;
         anim = GetComponent<Animator>();
         attackRange = GetComponentInChildren<AttackRange>();
@@ -43,12 +50,15 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        /*float dist = Vector3.Distance(transform.position, player.position);
-        if(dist)*/
         Vector3  point = player.position;
         point.y = 0.0f;
         transform.LookAt(point);
         transform.Translate(0, 0, stats.speed);
+        if(currentHP <= 0)
+        {
+            Instantiate(stats.explosion_effect,this.gameObject.transform.position + new Vector3(0,0.5f,0),this.gameObject.transform.rotation,transform.parent);
+            Destroy(this.gameObject);
+        }
     }
 
     void StopAttack()
@@ -74,5 +84,11 @@ public class EnemyController : MonoBehaviour
             targetCharacter.currentHP -= stats.damage;
             targetCharacter.currentHP = Mathf.Clamp(targetCharacter.currentHP, 0f, targetCharacter.maxHP);
             healthBarController.UpdateHealthBar();
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currentHP -= damage;
+        healthBar.value = currentHP;
     }
 }

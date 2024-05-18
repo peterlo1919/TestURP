@@ -26,7 +26,7 @@ namespace KETO
         }
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space) && !isSpawn)
+            if (Input.GetMouseButtonDown(0) && !isSpawn)
             {
                 isSpawn = true;
                 if (particles != null)

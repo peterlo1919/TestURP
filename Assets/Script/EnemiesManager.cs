@@ -5,43 +5,43 @@ using UnityEngine;
 
 public class EnemiesManager : MonoBehaviour
 {
-    [SerializeField] Vector3 spwanArea;
-    [SerializeField] float spwanTimer;
-    [SerializeField] GameObject player;
-    [SerializeField] GameObject expManager;
-    [SerializeField] GameObject effectManager;
+    private bool notEmpty = true;
+    [SerializeField] GameObject[] enemies;
+    [SerializeField] overClock_button overClock_Button;
+    [SerializeField] EnemyController enemyController;
+    [SerializeField] Dialog dialog;
 
-    public void SpwanEnemy(EnemyData enemyToSpwan)
+    private void Update()
     {
-        Vector3 position = GenerateRandomPosition();
-
-        position += player.transform.position;
-
-        GameObject newEnemy = Instantiate(enemyToSpwan.animatedPrefab);
-        newEnemy.transform.position = position;
-        EnemyController newEnemyComponent = newEnemy.GetComponent<EnemyController>();
-        newEnemyComponent.SetTarget(player);
-        newEnemyComponent.SetStats(enemyToSpwan.stats);
-        newEnemy.transform.parent = transform;
-    }
-
-    private Vector3 GenerateRandomPosition()
-    {
-        Vector3 position = new Vector3();
-
-        float f = UnityEngine.Random.value > 0.5f ? -1f : 1f;
-        if (UnityEngine.Random.value > 0.5f)
+        if(notEmpty == true)
         {
-            position.x = UnityEngine.Random.Range(-spwanArea.x, spwanArea.x);
-            position.z = spwanArea.z * f;
+            enemyController.enabled = false;
+            for (int i = 0; i < enemies.Length; i++)
+            {
+                if (enemies[i] == null)
+                {
+                    enemies[i] = null;
+                }
+            }
+
+            if((enemies[0] == null) && (enemies[1] == null) && (enemies[2] == null) && (enemies[3] == null) && (enemies[4] == null) && (enemies[5] == null) && (enemies[6] == null) && (enemies[7] == null) && (enemies[8] == null))
+            {
+                notEmpty = false;
+            }
         }
         else
         {
-            position.z = UnityEngine.Random.Range(-spwanArea.z, spwanArea.z);
-            position.x = spwanArea.x * f;
+            if (enemyController == null)
+            {
+                enemyController = null;
+                dialog.winning();
+            }
+            else
+            {
+                enemyController.enabled = true;
+                overClock_Button.IncreaseValue();
+            }
         }
-
-
-        return position;
     }
+
 }

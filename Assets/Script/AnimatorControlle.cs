@@ -6,11 +6,13 @@ using UnityEngine;
 public class AnimatorControlle : MonoBehaviour
 {
     private Animator animator;
-    [SerializeField] private GameObject hurtVFX_gameobject;
-    [SerializeField] private ParticleSystem hurtVFX;
+    [SerializeField] MPBarController _MPBarController;
+    [SerializeField] private VFXManager _VFXManager;
+    [SerializeField] private CharacterController characterController;
 
     private void Awake()
     {
+        characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
     }
 
@@ -28,21 +30,35 @@ public class AnimatorControlle : MonoBehaviour
     public void PlayHurt()
     {
         animator.Play("DAMAGED00");
-        hurtVFX_gameobject.transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
-        hurtVFX.Play();
+        _VFXManager.gameObject.transform.position = new Vector3(transform.position.x, transform.position.y - 0.8f, transform.position.z);
+        _VFXManager.playerHurtVFX.Play();
     }
 
     public void PlaySkill1()
     {
+        characterController.currentMP -= 10;
+        characterController.currentMP = Mathf.Clamp(characterController.currentMP, 0f, characterController.maxMP);
+        _MPBarController.UpdateMPBar();
         animator.Play("blast");
     }
     public void PlaySkill2()
     {
+        characterController.currentMP -= 30;
+        characterController.currentMP = Mathf.Clamp(characterController.currentMP, 0f, characterController.maxMP);
+        _MPBarController.UpdateMPBar();
         animator.Play("Kick");
     }
     public void PlaySkill3()
     {
+        characterController.currentMP -= 100;
+        characterController.currentMP = Mathf.Clamp(characterController.currentMP, 0f, characterController.maxMP);
+        _MPBarController.UpdateMPBar();
         animator.Play("Skill");
+    }
+
+    public void PlayRoll()
+    {
+        animator.Play("Roll");
     }
 
     public void Reset()
