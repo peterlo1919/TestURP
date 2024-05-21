@@ -100,7 +100,6 @@ public class CharacterController : MonoBehaviour
 
     private void StartPress(Vector3 v)
     {
-        Debug.Log("开始单击事件");
         isPress = true;
         combatSystem.OnAttack(isPress);
         combatSystem.OnCombo(isPress);
@@ -108,7 +107,6 @@ public class CharacterController : MonoBehaviour
 
     private void EndPress(Vector3 v)
     {
-        Debug.Log("结束单击事件");
     }
 
     private void StartDrag(Vector3 v)
