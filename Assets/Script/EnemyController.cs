@@ -19,7 +19,6 @@ public class EnemyStats
         this.damage = stats.damage;
         this.speed = stats.speed;
         this.explosion_effect = stats.explosion_effect;
-        this.IsBoss = stats.IsBoss;
     }
 }
 public class EnemyController : MonoBehaviour
